@@ -31,7 +31,7 @@ export default function TopBar({ onMenuOpen }: TopBarProps) {
     >
       <div className="flex items-center justify-between max-w-lg mx-auto">
         <Link href="/" className="flex-shrink-0">
-          <Image src="/images/logo.png" alt="Europe Chic" width={120} height={40} className="h-10 w-auto" priority />
+          <Image src="/images/logo.png" alt="Europe Chic" width={180} height={64} className="h-16 w-auto" priority />
         </Link>
 
         <div className="flex items-center gap-4">
