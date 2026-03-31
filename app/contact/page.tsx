@@ -23,8 +23,8 @@ export default function ContactPage() {
         className="px-4 py-8 max-w-lg mx-auto space-y-6"
       >
         {[
-          { icon: Phone, label: 'الهاتف', value: '+963 xxx xxx xxx' },
-          { icon: MapPin, label: 'العنوان', value: 'دمشق، سوريا' },
+          { icon: Phone, label: 'الهاتف', value: '+963 949 733 784' },
+          { icon: MapPin, label: 'العنوان', value: 'حلب، سوريا' },
         ].map((item, i) => (
           <div key={i} className="flex items-center gap-4 p-4 rounded-2xl bg-card border border-border/30">
             <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
@@ -38,7 +38,7 @@ export default function ContactPage() {
         ))}
 
         <a
-          href="https://wa.me/"
+          href="https://wa.me/963949733784"
           target="_blank"
           rel="noopener noreferrer"
           className="flex items-center justify-center gap-2 w-full py-3.5 rounded-full bg-primary text-primary-foreground font-medium font-arabic transition-transform hover:scale-[1.02]"
