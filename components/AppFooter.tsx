@@ -5,7 +5,7 @@ export default function AppFooter() {
   return (
     <footer className="bg-primary py-8 px-4 mt-4">
       <div className="max-w-lg mx-auto text-center space-y-5">
-        <Image src="/images/logo.png" alt="Europe Chic" width={120} height={40} className="h-10 w-auto mx-auto" />
+        <Image src="/images/logo.png" alt="Europe Chic" width={180} height={64} className="h-16 w-auto mx-auto" />
 
         <p className="text-sm text-primary-foreground/90 font-arabic leading-relaxed max-w-xs mx-auto">
           أناقتكِ تبدأ من هنا — أزياء أوروبية مختارة بعناية لتعكس تفردكِ وأسلوبكِ الخاص
