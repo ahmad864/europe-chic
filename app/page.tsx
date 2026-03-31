@@ -12,11 +12,19 @@ import LoadingScreen from '@/components/LoadingScreen';
 
 export default function HomePage() {
   const [menuOpen, setMenuOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const timer = setTimeout(() => setLoading(false), 1500);
-    return () => clearTimeout(timer);
+    // إذا لم يسبق تحميل الموقع في هذه الجلسة، أظهر شاشة التحميل
+    const hasLoaded = sessionStorage.getItem('app_loaded');
+    if (!hasLoaded) {
+      setLoading(true);
+      const timer = setTimeout(() => {
+        setLoading(false);
+        sessionStorage.setItem('app_loaded', '1');
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
   }, []);
 
   return (
