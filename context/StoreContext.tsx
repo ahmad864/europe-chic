@@ -23,6 +23,7 @@ interface StoreContextType {
   deleteProduct: (productId: string) => void;
   toggleFeatured: (productId: string) => void;
   updateProductStatus: (productId: string, status: ProductStatus) => void;
+  updateProductStock: (productId: string, stock: number) => void;
   addProduct: (product: Product) => void;
 }
 
@@ -83,6 +84,14 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     setProducts(prev => prev.map(p => p.id === productId ? { ...p, status } : p));
   }, []);
 
+  const updateProductStock = useCallback((productId: string, stock: number) => {
+    setProducts(prev => prev.map(p => {
+      if (p.id !== productId) return p;
+      const newStatus: ProductStatus = stock === 0 ? 'out-of-stock' : stock <= 5 ? 'low-stock' : 'available';
+      return { ...p, stock, status: newStatus };
+    }));
+  }, []);
+
   const addProduct = useCallback((product: Product) => {
     setProducts(prev => [product, ...prev]);
   }, []);
@@ -94,7 +103,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
     <StoreContext.Provider value={{
       cart, favorites, products, addToCart, removeFromCart, updateQuantity,
       clearCart, toggleFavorite, isFavorite, cartTotal, cartCount,
-      setProducts, deleteProduct, toggleFeatured, updateProductStatus, addProduct
+      setProducts, deleteProduct, toggleFeatured, updateProductStatus, updateProductStock, addProduct
     }}>
       {children}
     </StoreContext.Provider>
