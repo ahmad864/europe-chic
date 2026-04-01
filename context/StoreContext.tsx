@@ -1,7 +1,8 @@
 'use client';
 
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import type { Product, ProductStatus } from '@/data/products';
+import { supabase } from '@/lib/supabase';
 
 interface CartItem extends Product {
   quantity: number;
@@ -11,6 +12,7 @@ interface StoreContextType {
   cart: CartItem[];
   favorites: string[];
   products: Product[];
+  loading: boolean;
   addToCart: (product: Product) => void;
   removeFromCart: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
@@ -33,6 +35,25 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [favorites, setFavorites] = useState<string[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // جلب المنتجات من Supabase عند بدء التطبيق
+  useEffect(() => {
+    const fetchProducts = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (!error && data) {
+        setProducts(data as Product[]);
+      }
+      setLoading(false);
+    };
+
+    fetchProducts();
+  }, []);
 
   const addToCart = useCallback((product: Product) => {
     setCart(prev => {
@@ -72,28 +93,50 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   const isFavorite = useCallback((productId: string) => favorites.includes(productId), [favorites]);
 
-  const deleteProduct = useCallback((productId: string) => {
+  const deleteProduct = useCallback(async (productId: string) => {
+    await supabase.from('products').delete().eq('id', productId);
     setProducts(prev => prev.filter(p => p.id !== productId));
   }, []);
 
-  const toggleFeatured = useCallback((productId: string) => {
-    setProducts(prev => prev.map(p => p.id === productId ? { ...p, featured: !p.featured } : p));
-  }, []);
+  const toggleFeatured = useCallback(async (productId: string) => {
+    const product = products.find(p => p.id === productId);
+    if (!product) return;
+    const newFeatured = !product.featured;
+    await supabase.from('products').update({ featured: newFeatured }).eq('id', productId);
+    setProducts(prev => prev.map(p => p.id === productId ? { ...p, featured: newFeatured } : p));
+  }, [products]);
 
-  const updateProductStatus = useCallback((productId: string, status: ProductStatus) => {
+  const updateProductStatus = useCallback(async (productId: string, status: ProductStatus) => {
+    await supabase.from('products').update({ status }).eq('id', productId);
     setProducts(prev => prev.map(p => p.id === productId ? { ...p, status } : p));
   }, []);
 
-  const updateProductStock = useCallback((productId: string, stock: number) => {
-    setProducts(prev => prev.map(p => {
-      if (p.id !== productId) return p;
-      const newStatus: ProductStatus = stock === 0 ? 'out-of-stock' : stock <= 5 ? 'low-stock' : 'available';
-      return { ...p, stock, status: newStatus };
-    }));
+  const updateProductStock = useCallback(async (productId: string, stock: number) => {
+    const newStatus: ProductStatus = stock === 0 ? 'out-of-stock' : stock <= 5 ? 'low-stock' : 'available';
+    await supabase.from('products').update({ stock, status: newStatus }).eq('id', productId);
+    setProducts(prev => prev.map(p =>
+      p.id === productId ? { ...p, stock, status: newStatus } : p
+    ));
   }, []);
 
-  const addProduct = useCallback((product: Product) => {
-    setProducts(prev => [product, ...prev]);
+  const addProduct = useCallback(async (product: Product) => {
+    const { data, error } = await supabase
+      .from('products')
+      .insert([{
+        name: product.name,
+        price: product.price,
+        image: product.image,
+        category: product.category,
+        featured: product.featured,
+        status: product.status,
+        stock: product.stock,
+      }])
+      .select()
+      .single();
+
+    if (!error && data) {
+      setProducts(prev => [data as Product, ...prev]);
+    }
   }, []);
 
   const cartTotal = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -101,7 +144,7 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <StoreContext.Provider value={{
-      cart, favorites, products, addToCart, removeFromCart, updateQuantity,
+      cart, favorites, products, loading, addToCart, removeFromCart, updateQuantity,
       clearCart, toggleFavorite, isFavorite, cartTotal, cartCount,
       setProducts, deleteProduct, toggleFeatured, updateProductStatus, updateProductStock, addProduct
     }}>
