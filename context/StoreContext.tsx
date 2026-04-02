@@ -94,9 +94,22 @@ export function StoreProvider({ children }: { children: React.ReactNode }) {
   const isFavorite = useCallback((productId: string) => favorites.includes(productId), [favorites]);
 
   const deleteProduct = useCallback(async (productId: string) => {
+    // نجيب بيانات المنتج أولاً لنعرف مسار الصورة
+    const product = products.find(p => p.id === productId);
+
+    // نحذف المنتج من جدول Supabase
     await supabase.from('products').delete().eq('id', productId);
+
+    // نحذف الصورة من Storage إذا كانت مرفوعة على Supabase
+    if (product?.image && product.image.includes('supabase')) {
+      const fileName = product.image.split('/').pop();
+      if (fileName) {
+        await supabase.storage.from('products').remove([fileName]);
+      }
+    }
+
     setProducts(prev => prev.filter(p => p.id !== productId));
-  }, []);
+  }, [products]);
 
   const toggleFeatured = useCallback(async (productId: string) => {
     const product = products.find(p => p.id === productId);
