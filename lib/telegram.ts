@@ -7,7 +7,6 @@ interface OrderItem {
   name: string;
   quantity: number;
   price: number;
-  image: string;
 }
 
 export interface OrderData {
@@ -22,7 +21,7 @@ export interface OrderData {
 
 function formatOrderMessage(order: OrderData): string {
   const itemsList = order.items
-    .map((item, i) => `  ${i + 1}. ${item.name} × ${item.quantity} — $${(item.price * item.quantity).toFixed(2)}\n${item.image}`)
+    .map((item, i) => `  ${i + 1}. ${item.name} × ${item.quantity} — $${(item.price * item.quantity).toFixed(2)}`)
     .join('\n');
 
   return `🛍 طلب جديد من Europe Chic\n\n👤 الاسم: ${order.customerName}\n📞 الهاتف: ${order.phone}\n🏙 المدينة: ${order.city}\n📍 العنوان: ${order.address}\n💳 الدفع: ${order.paymentMethod}\n\n📦 المنتجات:\n${itemsList}\n\n💰 المجموع: $${order.totalPrice.toFixed(2)}`;
@@ -42,7 +41,7 @@ export async function sendOrderToTelegram(order: OrderData): Promise<boolean> {
     const res = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ chat_id: chatId, text: formatOrderMessage(order) }),
+      body: JSON.stringify({ chat_id: chatId, text: formatOrderMessage(order), parse_mode: 'HTML' }),
     });
     return res.ok;
   } catch (err) {
