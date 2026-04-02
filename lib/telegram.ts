@@ -7,6 +7,7 @@ interface OrderItem {
   name: string;
   quantity: number;
   price: number;
+  category: string;
 }
 
 export interface OrderData {
@@ -21,7 +22,7 @@ export interface OrderData {
 
 function formatOrderMessage(order: OrderData): string {
   const itemsList = order.items
-    .map((item, i) => `  ${i + 1}. ${item.name} × ${item.quantity} — $${(item.price * item.quantity).toFixed(2)}`)
+    .map((item, i) => `  ${i + 1}. [${item.category}] ${item.name} × ${item.quantity} — $${(item.price * item.quantity).toFixed(2)}`)
     .join('\n');
 
   return `🛍 طلب جديد من Europe Chic\n\n👤 الاسم: ${order.customerName}\n📞 الهاتف: ${order.phone}\n🏙 المدينة: ${order.city}\n📍 العنوان: ${order.address}\n💳 الدفع: ${order.paymentMethod}\n\n📦 المنتجات:\n${itemsList}\n\n💰 المجموع: $${order.totalPrice.toFixed(2)}`;
