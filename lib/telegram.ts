@@ -22,7 +22,7 @@ function formatOrderMessage(order: OrderData): string {
     )
     .join('\n');
 
-  return `🛍 <b>طلب جديد من Europe Chic</b>\n\n👤 الاسم: ${order.customerName}\n📞 الهاتف: ${order.phone}\n🏙 المدينة: ${order.city}\n📍 العنوان: ${order.address}\n💳 الدفع: ${order.paymentMethod}\n\n📦 المنتجات:\n${itemsList}\n\n💰 المجموع: $${order.totalPrice.toFixed(2)}`;
+  return `🛍 طلب جديد من Europe Chic\n\n👤 الاسم: ${order.customerName}\n📞 الهاتف: ${order.phone}\n🏙 المدينة: ${order.city}\n📍 العنوان: ${order.address}\n💳 الدفع: ${order.paymentMethod}\n\n📦 المنتجات:\n${itemsList}\n\n💰 المجموع: $${order.totalPrice.toFixed(2)}`;
 }
 
 export async function sendOrderToTelegram(order: OrderData): Promise<boolean> {
@@ -42,8 +42,7 @@ export async function sendOrderToTelegram(order: OrderData): Promise<boolean> {
       body: JSON.stringify({
         chat_id: chatId,
         text: formatOrderMessage(order),
-        parse_mode: 'HTML',
-        disable_web_page_preview: false,
+        disable_web_page_preview: true,
       }),
     });
     return res.ok;
