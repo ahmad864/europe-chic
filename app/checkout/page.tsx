@@ -33,7 +33,7 @@ export default function CheckoutPage() {
       city: form.city,
       address: form.address,
       paymentMethod: form.payment === 'cod' ? 'عند الاستلام' : 'شام كاش',
-      items: cart.map(item => ({ name: item.name, quantity: item.quantity, price: item.price, image: item.image })),
+      items: cart.map(item => ({ name: item.name, quantity: item.quantity, price: item.price })),
       totalPrice: cartTotal,
     });
     setSubmitted(true);
