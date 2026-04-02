@@ -14,7 +14,7 @@ export default function AppFooter() {
         <div className="space-y-2 text-sm text-primary-foreground/80 font-arabic">
           <div className="flex items-center justify-center gap-2">
             <Clock className="w-4 h-4 text-primary-foreground" />
-            <span>السبت - الخميس: 11 صباحاً - 10 مساءً</span>
+            <span> : 11 صباحاً - 10 مساءً</span>
           </div>
           <div className="flex items-center justify-center gap-2">
             <MapPin className="w-4 h-4 text-primary-foreground" />
