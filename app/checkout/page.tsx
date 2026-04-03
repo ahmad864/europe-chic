@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowRight } from 'lucide-react';
 import { useStore } from '@/context/StoreContext';
+import { supabase } from '@/lib/supabase';
 import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { sendOrderToTelegram } from '@/lib/telegram';
@@ -37,9 +38,15 @@ export default function CheckoutPage() {
       items: cart.map(item => ({ name: item.name, quantity: item.quantity, price: item.price, category: categories.find(c => c.id === item.category)?.name || item.category })),
       totalPrice: cartTotal,
     });
-    // تخفيض الكمية في Supabase
+    // تخفيض الكمية في Supabase — نجلب الكمية الحالية مباشرة من DB لتجنب أي تعارض
     for (const item of cart) {
-      const newStock = Math.max(0, (item.stock ?? 0) - item.quantity);
+      const { data } = await supabase
+        .from('products')
+        .select('stock')
+        .eq('id', item.id)
+        .single();
+      const currentStock = data?.stock ?? 0;
+      const newStock = Math.max(0, currentStock - item.quantity);
       await updateProductStock(item.id, newStock);
     }
     setSubmitted(true);
