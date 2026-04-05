@@ -68,6 +68,20 @@ export default function ProductCard({ product }: ProductCardProps) {
 
       <div className="p-2.5">
         <h3 className="text-xs font-medium text-foreground font-arabic truncate">{product.name}</h3>
+        {(product.size || product.length) && (
+          <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+            {product.size && (
+              <span className="text-[10px] font-medium bg-primary/10 text-primary px-2 py-0.5 rounded-full font-arabic">
+                {product.size}
+              </span>
+            )}
+            {product.length && (
+              <span className="text-[10px] font-medium bg-secondary text-foreground px-2 py-0.5 rounded-full font-arabic">
+                {product.length}
+              </span>
+            )}
+          </div>
+        )}
         <div className="flex items-center justify-between mt-1">
           <span className="text-xs font-bold text-primary">${product.price}</span>
           {product.stock !== undefined && product.stock > 0 && (
