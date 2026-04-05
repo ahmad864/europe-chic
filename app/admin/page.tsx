@@ -99,12 +99,14 @@ function AddProductForm({
 }: {
   categoryId: string;
   categoryName: string;
-  onAdd: (product: { name: string; price: number; image: string; stock: number }) => void;
+  onAdd: (product: { name: string; price: number; image: string; stock: number; size?: string; length?: string }) => void;
   onClose: () => void;
 }) {
   const [name, setName] = useState('');
   const [price, setPrice] = useState('');
   const [stock, setStock] = useState('');
+  const [size, setSize] = useState('');
+  const [length, setLength] = useState('');
   const [image, setImage] = useState('');
   const [previewImage, setPreviewImage] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
@@ -145,7 +147,7 @@ function AddProductForm({
       toast.error('يرجى ملء جميع الحقول');
       return;
     }
-    onAdd({ name, price: parseFloat(price), image: image || '/images/categories/category-1.png', stock: parseInt(stock) });
+    onAdd({ name, price: parseFloat(price), image: image || '/images/categories/category-1.png', stock: parseInt(stock), size: size || undefined, length: length || undefined });
     onClose();
     toast.success('تمت إضافة المنتج');
   };
@@ -185,6 +187,23 @@ function AddProductForm({
             min="0"
             className="w-full px-4 py-3 rounded-xl border border-input bg-background text-foreground font-arabic focus:outline-none focus:ring-2 focus:ring-ring"
           />
+
+          <div className="flex gap-3">
+            <input
+              type="text"
+              placeholder="القياس (مثال: M، L، XL)"
+              value={size}
+              onChange={e => setSize(e.target.value)}
+              className="flex-1 px-4 py-3 rounded-xl border border-input bg-background text-foreground font-arabic focus:outline-none focus:ring-2 focus:ring-ring"
+            />
+            <input
+              type="text"
+              placeholder="الطول (مثال: 120 سم)"
+              value={length}
+              onChange={e => setLength(e.target.value)}
+              className="flex-1 px-4 py-3 rounded-xl border border-input bg-background text-foreground font-arabic focus:outline-none focus:ring-2 focus:ring-ring"
+            />
+          </div>
 
           <div>
             <label className="block text-sm font-medium text-foreground mb-2 font-arabic">صورة المنتج</label>
@@ -401,7 +420,7 @@ export default function AdminDashboard() {
         <AddProductForm
           categoryId={selectedCategory}
           categoryName={currentCategory.name}
-          onAdd={({ name, price, image, stock }) => {
+          onAdd={({ name, price, image, stock, size, length }) => {
             const stockNum = stock ?? 0;
             const status: ProductStatus = stockNum === 0 ? 'out-of-stock' : stockNum <= 5 ? 'low-stock' : 'available';
             addProduct({
@@ -413,6 +432,8 @@ export default function AdminDashboard() {
               featured: false,
               status,
               stock: stockNum,
+              size,
+              length,
             });
           }}
           onClose={() => setShowAddForm(false)}
