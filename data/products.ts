@@ -9,6 +9,8 @@ export interface Product {
   featured: boolean;
   status: ProductStatus;
   stock: number;
+  size?: string;
+  length?: string;
 }
 
 export interface Category {
