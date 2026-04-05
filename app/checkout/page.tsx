@@ -22,35 +22,49 @@ export default function CheckoutPage() {
     payment: 'cod',
   });
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (loading || submitted) return;
     if (!form.name || !form.phone || !form.city || !form.address) {
       toast.error('يرجى ملء جميع الحقول');
       return;
     }
-    await sendOrderToTelegram({
-      customerName: form.name,
-      phone: form.phone,
-      city: form.city,
-      address: form.address,
-      paymentMethod: form.payment === 'cod' ? 'عند الاستلام' : 'شام كاش',
-      items: cart.map(item => ({ name: item.name, quantity: item.quantity, price: item.price, category: categories.find(c => c.id === item.category)?.name || item.category })),
-      totalPrice: cartTotal,
-    });
-    // تخفيض الكمية في Supabase — نجلب الكمية الحالية مباشرة من DB لتجنب أي تعارض
-    for (const item of cart) {
-      const { data } = await supabase
-        .from('products')
-        .select('stock')
-        .eq('id', item.id)
-        .single();
-      const currentStock = data?.stock ?? 0;
-      const newStock = Math.max(0, currentStock - item.quantity);
-      await updateProductStock(item.id, newStock);
+    setLoading(true);
+    try {
+      await sendOrderToTelegram({
+        customerName: form.name,
+        phone: form.phone,
+        city: form.city,
+        address: form.address,
+        paymentMethod: form.payment === 'cod' ? 'عند الاستلام' : 'شام كاش',
+        items: cart.map(item => ({
+          name: item.name,
+          quantity: item.quantity,
+          price: item.price,
+          category: categories.find(c => c.id === item.category)?.name || item.category,
+        })),
+        totalPrice: cartTotal,
+      });
+      // تخفيض الكمية في Supabase — نجلب الكمية الحالية مباشرة من DB لتجنب أي تعارض
+      for (const item of cart) {
+        const { data } = await supabase
+          .from('products')
+          .select('stock')
+          .eq('id', item.id)
+          .single();
+        const currentStock = data?.stock ?? 0;
+        const newStock = Math.max(0, currentStock - item.quantity);
+        await updateProductStock(item.id, newStock);
+      }
+      clearCart();
+      setSubmitted(true);
+    } catch {
+      toast.error('حدث خطأ، حاول مجدداً');
+    } finally {
+      setLoading(false);
     }
-    setSubmitted(true);
-    clearCart();
   };
 
   if (submitted) {
@@ -155,9 +169,10 @@ export default function CheckoutPage() {
 
         <button
           type="submit"
-          className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-medium font-arabic transition-transform hover:scale-[1.02] active:scale-[0.98]"
+          disabled={loading}
+          className="w-full py-3.5 rounded-full bg-primary text-primary-foreground font-medium font-arabic transition-transform hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60 disabled:scale-100"
         >
-          تأكيد الطلب
+          {loading ? 'جاري الإرسال...' : 'تأكيد الطلب'}
         </button>
       </form>
     </div>
