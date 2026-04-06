@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 export default function CategoryPage({ params }: { params: { id: string } }) {
   const { id } = params;
-  const { products, cartCount } = useStore();
+  const { products, cartCount, loading } = useStore();
   const category = categories.find(c => c.id === id);
   const categoryProducts = products.filter(p => p.category === id);
 
@@ -37,15 +37,29 @@ export default function CategoryPage({ params }: { params: { id: string } }) {
         animate={{ opacity: 1 }}
         className="px-4 py-6 max-w-lg mx-auto pb-24"
       >
-        <div className="grid grid-cols-2 gap-3">
-          {categoryProducts.map(product => (
-            <ProductCard key={product.id} product={product} />
-          ))}
-        </div>
-        {categoryProducts.length === 0 && (
+        {loading ? (
+          /* Skeleton أثناء التحميل */
+          <div className="grid grid-cols-2 gap-3">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div key={i} className="rounded-xl overflow-hidden bg-card border border-border/30 animate-pulse">
+                <div className="aspect-[3/4] bg-muted" />
+                <div className="p-2.5 space-y-2">
+                  <div className="h-3 bg-muted rounded w-3/4" />
+                  <div className="h-3 bg-muted rounded w-1/2" />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : categoryProducts.length === 0 ? (
           <div className="text-center py-16 space-y-3">
             <p className="text-4xl">🛍️</p>
             <p className="text-muted-foreground font-arabic">لا توجد منتجات في هذه الفئة</p>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-3">
+            {categoryProducts.map(product => (
+              <ProductCard key={product.id} product={product} />
+            ))}
           </div>
         )}
       </motion.div>
